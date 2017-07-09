@@ -9,11 +9,12 @@
 import UIKit
 import ARKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet private var sceneView: ARSCNView!
     
     private var configuration: ARWorldTrackingSessionConfiguration {
         let configuration = ARWorldTrackingSessionConfiguration()
+        configuration.planeDetection = .horizontal
         return configuration
     }
     
@@ -21,7 +22,13 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        guard ARWorldTrackingSessionConfiguration.isSupported else {
+            fatalError()
+        }
+        
         sceneView.showsStatistics = true
+        
+        sceneView.delegate = self
         
         let node = SCNNode(geometry: SCNBox(width: 0.2, height: 0.2, length: 0.2, chamferRadius: 0))
         node.position = SCNVector3(0, 0, -1)
@@ -37,12 +44,49 @@ class ViewController: UIViewController {
         super.viewWillAppear(animated)
         
         sceneView.session.run(configuration)
+        
+//        sceneView.session.run(configuration, options: .resetTracking)
+//        sceneView.session.run(configuration, options: .removeExistingAnchors)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         sceneView.session.pause()
+    }
+    
+    func session(_ session: ARSession, didFailWithError error: Error) {
+        // TODO:
+        print(error)
+    }
+    
+    func sessionWasInterrupted(_ session: ARSession) {
+        print("sessionWasInterrupted")
+    }
+    
+    func sessionInterruptionEnded(_ session: ARSession) {
+        print("sessionInterruptionEnded")
+    }
+    
+    func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
+        // トラッキング状況の変化
+        print(camera.trackingState)
+    }
+    
+    // 床検出用
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        // 新規
+        print(anchor)
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+        // 更新
+        print(anchor)
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
+        // マージ
+        print(anchor)
     }
 }
 
