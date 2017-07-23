@@ -52,7 +52,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        sceneView.session.pause()
+//        sceneView.session.pause()
     }
     
     func session(_ session: ARSession, didFailWithError error: Error) {
@@ -61,10 +61,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     func sessionWasInterrupted(_ session: ARSession) {
+        //viewWillDisappearでpause()しない場合
         print("sessionWasInterrupted")
     }
     
     func sessionInterruptionEnded(_ session: ARSession) {
+        //viewWillDisappearでpause()しない場合で復活した場合
         print("sessionInterruptionEnded")
     }
     
