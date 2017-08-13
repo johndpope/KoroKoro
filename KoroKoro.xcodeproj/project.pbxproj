@@ -12,6 +12,7 @@
 		C4002FDA1F1251AC008A5F68 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4002FD81F1251AC008A5F68 /* Main.storyboard */; };
 		C4002FDC1F1251AC008A5F68 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C4002FDB1F1251AC008A5F68 /* Assets.xcassets */; };
 		C4002FDF1F1251AC008A5F68 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4002FDD1F1251AC008A5F68 /* LaunchScreen.storyboard */; };
+		C405988E1F3DE557000851C1 /* Models.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C405988D1F3DE557000851C1 /* Models.scnassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		C4002FDB1F1251AC008A5F68 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C4002FDE1F1251AC008A5F68 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C4002FE01F1251AC008A5F68 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C405988D1F3DE557000851C1 /* Models.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = Models.scnassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +59,7 @@
 				C4002FD41F1251AC008A5F68 /* AppDelegate.swift */,
 				C4002FD61F1251AC008A5F68 /* ViewController.swift */,
 				C4002FD81F1251AC008A5F68 /* Main.storyboard */,
+				C405988D1F3DE557000851C1 /* Models.scnassets */,
 				C4002FDB1F1251AC008A5F68 /* Assets.xcassets */,
 				C4002FDD1F1251AC008A5F68 /* LaunchScreen.storyboard */,
 				C4002FE01F1251AC008A5F68 /* Info.plist */,
@@ -125,6 +128,7 @@
 				C4002FDF1F1251AC008A5F68 /* LaunchScreen.storyboard in Resources */,
 				C4002FDC1F1251AC008A5F68 /* Assets.xcassets in Resources */,
 				C4002FDA1F1251AC008A5F68 /* Main.storyboard in Resources */,
+				C405988E1F3DE557000851C1 /* Models.scnassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,6 +316,7 @@
 				C4002FE51F1251AC008A5F68 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
