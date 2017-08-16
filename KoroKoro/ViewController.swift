@@ -13,7 +13,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet private var sceneView: ARSCNView!
     @IBOutlet private var statusLabel: UILabel!
     
-    let planeVerticalOffset = Float(0.001)  // The occlusion plane should be placed 1 cm below the actual
+    let planeVerticalOffset = Float(0.01)  // The occlusion plane should be placed 1 cm below the actual
     // plane to avoid z-fighting etc.
 
     private let configuration: ARWorldTrackingConfiguration = {
@@ -22,13 +22,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         return configuration
     }()
     
-    var planes = [ARAnchor: SCNNode]()
-    
     private enum Phase {
         case initializing   // 初期化中
         case limited    // TODO:
         case tracking       // トラッキング中
         case detection(parentNode: SCNNode)      // 平面検出
+        
         
         case starting
         case playing
@@ -40,6 +39,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             case .initializing: return "ARKit initializing..."
             case .limited: return "検出不可"
             case .tracking: return "tracking..."
+            case .detection: return "床候補"
                 
             case .error(let message): return "error: \(message)"
             default:
@@ -52,6 +52,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         didSet {
             DispatchQueue.main.async { [weak self] in
                 guard let `self` = self else { return }
+                
+                if case let .detection(parentNode) = oldValue {
+                    parentNode.removeFromParentNode()
+                }
+                
                 self.statusLabel.text = self.phase.status
             }
         }
@@ -131,59 +136,60 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
-
-    // 床検出用
-    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-        DispatchQueue.main.async {
-            guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
-            let floor = SCNScene(named: "floor.scn", inDirectory: "Models.scnassets/floor")!.rootNode
-            floor.position = SCNVector3Make(planeAnchor.center.x, 0.001, planeAnchor.center.z)
-//            self.planes[anchor] = floor
-            node.addChildNode(floor)
+    private func addFloor(node: SCNNode, planeAnchor: ARPlaneAnchor) {
+        switch phase {
+        case .tracking:            // 新規床検出
+            print("add tracking")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                
+//                let source = SCNScene(named: "ball.scn", inDirectory: "Models.scnassets/ball")!.rootNode
+//                let parent = SCNNode()
+//                source.childNodes.forEach { parent.addChildNode($0) }
+//                parent.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
+//                self.sceneView.scene.rootNode.addChildNode(parent)
+                if case let .detection(parentNode) = self.phase {
+                    let a = parentNode.childNode(withName: "ball", recursively: true)!
+                    a.isHidden = false
+                }
+            }
+        case let .detection(parentNode):            // 追加検出
+            print("add detection")
+            guard node.worldPosition.y < parentNode.worldPosition.y else { return }
+        default: return
         }
         
+        print("add")
+        let source = SCNScene(named: "floor.scn", inDirectory: "Models.scnassets/floor")!.rootNode
+        let floor = SCNNode()
+        source.childNodes.forEach { floor.addChildNode($0) }
+        floor.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
+        node.addChildNode(floor)
         
-//        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
-//
-//        switch phase {
-//        case .tracking:            // 新規床検出
-//            print("tracking")
-//            break
-//        case let .detection(parentNode):            // 追加検出
-////            guard node.worldPosition.y < parentNode.worldPosition.y else { return }
-////            parentNode.remove()
-//            print("detection")
-//        default: return
-//        }
-        
-        // 床検出
-//        let floor = SCNScene(named: "floor.scn", inDirectory: "Models.scnassets/floor")!.rootNode
-//        floor.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
-//        node.addChildNode(floor)
-        
-//        phase = .detection(parentNode: node)
+        phase = .detection(parentNode: node)
+    }
+    
+    // 床検出用
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.addFloor(node: node, planeAnchor: planeAnchor)
+        }
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+        print("didUpdate")
         // 更新
-//        guard let plane = anchor as? ARPlaneAnchor else { return }
-//        guard let a = node.childNodes.first else { return }
-//        guard let p = a.geometry as? SCNPlane else { return }
-////        p.width = CGFloat(plane.extent.x - 0.05)
-////        p.height = CGFloat(plane.extent.z - 0.05)
-//        a.position = SCNVector3Make(plane.center.x, planeVerticalOffset, plane.center.z)
+        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+        guard case let .detection(parentNode) = phase, node.isEqual(parentNode) else { return }
+        guard let floor = node.childNodes.first else { return }
+
+        print("didUpdate")
+        floor.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
-        DispatchQueue.main.async {
-            guard let floor = self.planes[anchor] else { return }
-            self.planes[anchor] = nil
-            floor.childNodes.forEach { $0.removeFromParentNode() }
-            floor.removeFromParentNode()
-        }
         // マージ
         print("didRemove")
-        
     }
 }
 
