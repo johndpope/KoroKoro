@@ -72,7 +72,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
         sceneView.showsStatistics = true
         sceneView.debugOptions = ARSCNDebugOptions.showFeaturePoints
-        
+//        sceneView.automaticallyUpdatesLighting = true
         sceneView.delegate = self
     }
 
@@ -140,18 +140,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         switch phase {
         case .tracking:            // 新規床検出
             print("add tracking")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                
-//                let source = SCNScene(named: "ball.scn", inDirectory: "Models.scnassets/ball")!.rootNode
-//                let parent = SCNNode()
-//                source.childNodes.forEach { parent.addChildNode($0) }
-//                parent.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
-//                self.sceneView.scene.rootNode.addChildNode(parent)
-                if case let .detection(parentNode) = self.phase {
-                    let a = parentNode.childNode(withName: "ball", recursively: true)!
-                    a.isHidden = false
-                }
-            }
         case let .detection(parentNode):            // 追加検出
             print("add detection")
             guard node.worldPosition.y < parentNode.worldPosition.y else { return }
@@ -162,7 +150,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let source = SCNScene(named: "floor.scn", inDirectory: "Models.scnassets/floor")!.rootNode
         let floor = SCNNode()
         source.childNodes.forEach { floor.addChildNode($0) }
-        floor.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
+        floor.position = SCNVector3Make(0, planeVerticalOffset, 0)
         node.addChildNode(floor)
         
         phase = .detection(parentNode: node)
@@ -184,12 +172,198 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let floor = node.childNodes.first else { return }
 
         print("didUpdate")
-        floor.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
+//        floor.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
+
+//        DispatchQueue.main.async { [weak self] in
+//            guard let `self` = self else { return }
+//
+//            let frame = self.sceneView.session.currentFrame!
+//            let t = frame.camera.transform
+//            let a = SCNVector3Make(t.columns.3.x, t.columns.3.y, t.columns.3.z - 2)
+//
+//
+//            self.statusLabel.text = "\(a)"
+//        }
+
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
         // マージ
         print("didRemove")
     }
+    
+    @IBAction func tap() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            
+            //                let source = SCNScene(named: "ball.scn", inDirectory: "Models.scnassets/ball")!.rootNode
+            //                let parent = SCNNode()
+            //                source.childNodes.forEach { parent.addChildNode($0) }
+            //                parent.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
+            //                self.sceneView.scene.rootNode.addChildNode(parent)
+//            if case let .detection(parentNode) = self.phase {
+//                let a = parentNode.childNode(withName: "ball", recursively: true)!
+//                a.isHidden = false
+//            }
+        }
+
+        let source = SCNScene(named: "ball.scn", inDirectory: "Models.scnassets/ball")!.rootNode
+        let parent = SCNNode()
+        source.childNodes.forEach { parent.addChildNode($0) }
+        
+        if let currentFrame = sceneView.session.currentFrame {
+            
+            // Create a transform with a translation of 0.2 meters in front of the camera
+//            var translation = matrix_identity_float4x4
+//            translation.columns.3.z = -0.2
+//            let transform = simd_mul(currentFrame.camera.transform, translation)
+            let translation = SCNMatrix4MakeTranslation(0, 0, -5)
+            let transform = SCNMatrix4Mult(translation, SCNMatrix4(currentFrame.camera.transform))
+
+            // Add a new anchor to the session
+//            let anchor = ARAnchor(transform: transform)
+//            sceneView.session.add(anchor: anchor)
+            
+            parent.transform = transform
+            sceneView.scene.rootNode.addChildNode(parent)
+        }
+//        let frame = sceneView.session.currentFrame!
+//        let t = frame.camera.transform
+//
+//        let a = SCNVector3Make(t.columns.3.x, t.columns.3.y, t.columns.3.z)
+//        parent.position = a
+//
+//        let aaa = CGPoint(x: 0.5, y: 0.5)
+//
+//        let planeHitTestResults = sceneView.session.currentFrame?.hitTest(aaa, types: [.existingPlaneUsingExtent, .estimatedHorizontalPlane])
+//        if let result = planeHitTestResults?.first {
+//
+//            let planeHitTestPosition = SCNVector3.positionFromTransform(result.worldTransform)
+//            let planeAnchor = result.anchor
+//
+//            // Return immediately - this is the best possible outcome.
+//            print(planeAnchor)
+//
+//        }
+
+
+    }
+}
+
+extension SCNNode {
+    
+    func setUniformScale(_ scale: Float) {
+        self.scale = SCNVector3Make(scale, scale, scale)
+    }
+    
+    func renderOnTop() {
+        self.renderingOrder = 2
+        if let geom = self.geometry {
+            for material in geom.materials {
+                material.readsFromDepthBuffer = false
+            }
+        }
+        for child in self.childNodes {
+            child.renderOnTop()
+        }
+    }
+}
+
+// MARK: - SCNVector3 extensions
+
+extension SCNVector3 {
+    
+    init(_ vec: vector_float3) {
+        self.x = vec.x
+        self.y = vec.y
+        self.z = vec.z
+    }
+    
+    func length() -> Float {
+        return sqrtf(x * x + y * y + z * z)
+    }
+    
+    mutating func setLength(_ length: Float) {
+        self.normalize()
+        self *= length
+    }
+    
+    mutating func setMaximumLength(_ maxLength: Float) {
+        if self.length() <= maxLength {
+            return
+        } else {
+            self.normalize()
+            self *= maxLength
+        }
+    }
+    
+    mutating func normalize() {
+        self = self.normalized()
+    }
+    
+    func normalized() -> SCNVector3 {
+        if self.length() == 0 {
+            return self
+        }
+        
+        return self / self.length()
+    }
+    
+    static func positionFromTransform(_ transform: matrix_float4x4) -> SCNVector3 {
+        return SCNVector3Make(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
+    }
+    
+    func friendlyString() -> String {
+        return "(\(String(format: "%.2f", x)), \(String(format: "%.2f", y)), \(String(format: "%.2f", z)))"
+    }
+    
+    func dot(_ vec: SCNVector3) -> Float {
+        return (self.x * vec.x) + (self.y * vec.y) + (self.z * vec.z)
+    }
+    
+    func cross(_ vec: SCNVector3) -> SCNVector3 {
+        return SCNVector3(self.y * vec.z - self.z * vec.y, self.z * vec.x - self.x * vec.z, self.x * vec.y - self.y * vec.x)
+    }
+}
+
+public let SCNVector3One: SCNVector3 = SCNVector3(1.0, 1.0, 1.0)
+
+func SCNVector3Uniform(_ value: Float) -> SCNVector3 {
+    return SCNVector3Make(value, value, value)
+}
+
+func SCNVector3Uniform(_ value: CGFloat) -> SCNVector3 {
+    return SCNVector3Make(Float(value), Float(value), Float(value))
+}
+
+func + (left: SCNVector3, right: SCNVector3) -> SCNVector3 {
+    return SCNVector3Make(left.x + right.x, left.y + right.y, left.z + right.z)
+}
+
+func - (left: SCNVector3, right: SCNVector3) -> SCNVector3 {
+    return SCNVector3Make(left.x - right.x, left.y - right.y, left.z - right.z)
+}
+
+func += (left: inout SCNVector3, right: SCNVector3) {
+    left = left + right
+}
+
+func -= (left: inout SCNVector3, right: SCNVector3) {
+    left = left - right
+}
+
+func / (left: SCNVector3, right: Float) -> SCNVector3 {
+    return SCNVector3Make(left.x / right, left.y / right, left.z / right)
+}
+
+func * (left: SCNVector3, right: Float) -> SCNVector3 {
+    return SCNVector3Make(left.x * right, left.y * right, left.z * right)
+}
+
+func /= (left: inout SCNVector3, right: Float) {
+    left = left / right
+}
+
+func *= (left: inout SCNVector3, right: Float) {
+    left = left * right
 }
 
