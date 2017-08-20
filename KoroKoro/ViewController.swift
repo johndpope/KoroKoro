@@ -15,13 +15,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet private var sceneView: ARSCNView!
     @IBOutlet private var statusLabel: UILabel!
     
+    private var planes = [ARPlaneAnchor: SCNNode]()
+    
     let planeVerticalOffset = Float(0.01)
     
     private enum Phase {
         case initializing   // 初期化中
         case limited    // TODO:
         case tracking       // トラッキング中
-        case detection(floorNode: SCNNode)      // 平面検出
+        case detection      // 平面検出
         
         case starting
         case playing
@@ -45,12 +47,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     private var phase = Phase.initializing {
         didSet {
             print("phase: \(oldValue) => \(phase)")
+            print(planes.count)
             DispatchQueue.main.async { [weak self] in
                 guard let `self` = self else { return }
                 
-                if case let .detection(parentNode) = oldValue {
+//                if case let .detection(parentNode) = oldValue {
 //                    parentNode.removeFromParentNode()
-                }
+//                }
                 
                 self.statusLabel.text = self.phase.status
             }
@@ -139,19 +142,24 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         let floor = makeFloor(anchor: planeAnchor)
         node.addChildNode(floor)
-        phase = .detection(floorNode: floor)
+        planes[planeAnchor] = floor
+        phase = .detection
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
         guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
-        guard case let .detection(parent) = phase, parent == node.childNodes.first else { return }
+        guard let parent = planes[planeAnchor], parent == node else { return }
         parent.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.y)
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
-        guard let _ = anchor as? ARPlaneAnchor else { return }
-        guard case let .detection(parent) = phase, parent == node.childNodes.first else { return }
-        phase = .tracking
+        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+        planes.removeValue(forKey: planeAnchor)
+        if planes.count == 0 {
+            phase = .tracking
+        } else {
+            print(planes.count)
+        }
     }
     
     // MARK: -
@@ -163,6 +171,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         configuration.planeDetection = .horizontal
         sceneView.session.run(configuration)
         
+        planes = [:]
         phase = .initializing
     }
     
@@ -178,13 +187,24 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     
     @IBAction func tap(sender: UITapGestureRecognizer) {
-//        let results = sceneView.hitTest(CGPoint(x: 0.5, y: 0.5),
-//                                        types: [.existingPlaneUsingExtent])
-
-        let results = sceneView.hitTest(sender.location(in: sceneView), options: [:])
+        
+        
+        
+        
+        
+        let results = sceneView.hitTest(CGPoint(x: 0.5, y: 0.5),
+                                        types: [.existingPlane])
+        results.forEach {
+            guard let anchor = $0.anchor as? ARPlaneAnchor else { return }
+            let plane = planes[anchor]
+            print(plane?.name ?? "?")
+        }
+        
+        
+//        let results = sceneView.hitTest(sender.location(in: sceneView), options: [:])
         
         print(results.count)
-        results.forEach { print($0.node.name) }
+//        results.forEach { print($0.node.name) }
 //
 //            let planeHitTestPosition = SCNVector3.positionFromTransform(result.worldTransform)
 //            let planeAnchor = result.anchor
