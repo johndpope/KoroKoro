@@ -13,8 +13,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet private var sceneView: ARSCNView!
     @IBOutlet private var statusLabel: UILabel!
     
-    let planeVerticalOffset = Float(0.01)  // The occlusion plane should be placed 1 cm below the actual
-    // plane to avoid z-fighting etc.
+    let planeVerticalOffset = Float(0.01)
 
     private let configuration: ARWorldTrackingConfiguration = {
         let configuration = ARWorldTrackingConfiguration()
@@ -87,17 +86,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.session.run(configuration)
         
         phase = .initializing
-        
-//        let f = sceneView.session.currentFrame
-//        print(f)
-//        sceneView.session.run(configuration, options: .resetTracking)
-//        sceneView.session.run(configuration, options: .removeExistingAnchors)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-//        sceneView.session.pause()
+        sceneView.session.pause()
     }
     
     func session(_ session: ARSession, didFailWithError error: Error) {
@@ -106,13 +100,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     func sessionWasInterrupted(_ session: ARSession) {
-        //viewWillDisappearでpause()しない場合
         print("sessionWasInterrupted")
         phase = .error(message: "ARKit Was Interrupted")
     }
     
     func sessionInterruptionEnded(_ session: ARSession) {
-        //viewWillDisappearでpause()しない場合で復活した場合
         print("sessionInterruptionEnded")
     }
     
@@ -166,29 +158,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
         print("didUpdate")
-        // 更新
-        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
-        guard case let .detection(parentNode) = phase, node.isEqual(parentNode) else { return }
-        guard let floor = node.childNodes.first else { return }
-
-        print("didUpdate")
-//        floor.position = SCNVector3Make(planeAnchor.center.x, planeVerticalOffset, planeAnchor.center.z)
-
-//        DispatchQueue.main.async { [weak self] in
-//            guard let `self` = self else { return }
-//
-//            let frame = self.sceneView.session.currentFrame!
-//            let t = frame.camera.transform
-//            let a = SCNVector3Make(t.columns.3.x, t.columns.3.y, t.columns.3.z - 2)
-//
-//
-//            self.statusLabel.text = "\(a)"
-//        }
-
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
-        // マージ
         print("didRemove")
     }
     
@@ -248,122 +220,3 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     }
 }
-
-extension SCNNode {
-    
-    func setUniformScale(_ scale: Float) {
-        self.scale = SCNVector3Make(scale, scale, scale)
-    }
-    
-    func renderOnTop() {
-        self.renderingOrder = 2
-        if let geom = self.geometry {
-            for material in geom.materials {
-                material.readsFromDepthBuffer = false
-            }
-        }
-        for child in self.childNodes {
-            child.renderOnTop()
-        }
-    }
-}
-
-// MARK: - SCNVector3 extensions
-
-extension SCNVector3 {
-    
-    init(_ vec: vector_float3) {
-        self.x = vec.x
-        self.y = vec.y
-        self.z = vec.z
-    }
-    
-    func length() -> Float {
-        return sqrtf(x * x + y * y + z * z)
-    }
-    
-    mutating func setLength(_ length: Float) {
-        self.normalize()
-        self *= length
-    }
-    
-    mutating func setMaximumLength(_ maxLength: Float) {
-        if self.length() <= maxLength {
-            return
-        } else {
-            self.normalize()
-            self *= maxLength
-        }
-    }
-    
-    mutating func normalize() {
-        self = self.normalized()
-    }
-    
-    func normalized() -> SCNVector3 {
-        if self.length() == 0 {
-            return self
-        }
-        
-        return self / self.length()
-    }
-    
-    static func positionFromTransform(_ transform: matrix_float4x4) -> SCNVector3 {
-        return SCNVector3Make(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
-    }
-    
-    func friendlyString() -> String {
-        return "(\(String(format: "%.2f", x)), \(String(format: "%.2f", y)), \(String(format: "%.2f", z)))"
-    }
-    
-    func dot(_ vec: SCNVector3) -> Float {
-        return (self.x * vec.x) + (self.y * vec.y) + (self.z * vec.z)
-    }
-    
-    func cross(_ vec: SCNVector3) -> SCNVector3 {
-        return SCNVector3(self.y * vec.z - self.z * vec.y, self.z * vec.x - self.x * vec.z, self.x * vec.y - self.y * vec.x)
-    }
-}
-
-public let SCNVector3One: SCNVector3 = SCNVector3(1.0, 1.0, 1.0)
-
-func SCNVector3Uniform(_ value: Float) -> SCNVector3 {
-    return SCNVector3Make(value, value, value)
-}
-
-func SCNVector3Uniform(_ value: CGFloat) -> SCNVector3 {
-    return SCNVector3Make(Float(value), Float(value), Float(value))
-}
-
-func + (left: SCNVector3, right: SCNVector3) -> SCNVector3 {
-    return SCNVector3Make(left.x + right.x, left.y + right.y, left.z + right.z)
-}
-
-func - (left: SCNVector3, right: SCNVector3) -> SCNVector3 {
-    return SCNVector3Make(left.x - right.x, left.y - right.y, left.z - right.z)
-}
-
-func += (left: inout SCNVector3, right: SCNVector3) {
-    left = left + right
-}
-
-func -= (left: inout SCNVector3, right: SCNVector3) {
-    left = left - right
-}
-
-func / (left: SCNVector3, right: Float) -> SCNVector3 {
-    return SCNVector3Make(left.x / right, left.y / right, left.z / right)
-}
-
-func * (left: SCNVector3, right: Float) -> SCNVector3 {
-    return SCNVector3Make(left.x * right, left.y * right, left.z * right)
-}
-
-func /= (left: inout SCNVector3, right: Float) {
-    left = left / right
-}
-
-func *= (left: inout SCNVector3, right: Float) {
-    left = left * right
-}
-
