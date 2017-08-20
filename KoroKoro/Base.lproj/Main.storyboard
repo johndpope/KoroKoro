@@ -8,6 +8,11 @@
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="HelveticaNeue.ttc">
+            <string>HelveticaNeue</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -35,15 +40,23 @@
                                 <color key="textColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2vG-4c-nav">
+                                <rect key="frame" x="284" y="164" width="98" height="47"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="40"/>
+                                <color key="textColor" red="0.40000000600000002" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="2vG-4c-nav" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="9wW-db-BQE"/>
                             <constraint firstItem="Jct-ck-mZx" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="G7k-y6-H5v"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="L8i-5I-16h" secondAttribute="bottom" id="JL5-L4-Twz"/>
                             <constraint firstAttribute="trailing" secondItem="L8i-5I-16h" secondAttribute="trailing" id="cpz-ce-dck"/>
                             <constraint firstItem="L8i-5I-16h" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="hR5-6D-lOZ"/>
                             <constraint firstItem="Jct-ck-mZx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="mNq-Rv-doY"/>
                             <constraint firstItem="L8i-5I-16h" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="q7q-ES-FMh"/>
+                            <constraint firstItem="2vG-4c-nav" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="yIb-YB-fQl"/>
                         </constraints>
                     </view>
                     <connections>
@@ -54,7 +67,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
                 <tapGestureRecognizer id="2lw-Qb-lPv">
                     <connections>
-                        <action selector="tap" destination="BYZ-38-t0r" id="4gq-o6-Gpi"/>
+                        <action selector="tapWithSender:" destination="BYZ-38-t0r" id="W7F-15-XyS"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
