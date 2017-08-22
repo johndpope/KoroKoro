@@ -46,20 +46,30 @@
                                 <color key="textColor" red="0.40000000600000002" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9rW-Ui-1i1">
+                                <rect key="frame" x="600" y="8" width="39" height="30"/>
+                                <state key="normal" title="Reset"/>
+                                <connections>
+                                    <action selector="tapResetWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uAv-jo-QLH"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="2vG-4c-nav" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="9wW-db-BQE"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="9rW-Ui-1i1" secondAttribute="trailing" constant="8" id="DI3-sD-7xA"/>
                             <constraint firstItem="Jct-ck-mZx" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="G7k-y6-H5v"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="L8i-5I-16h" secondAttribute="bottom" id="JL5-L4-Twz"/>
                             <constraint firstAttribute="trailing" secondItem="L8i-5I-16h" secondAttribute="trailing" id="cpz-ce-dck"/>
                             <constraint firstItem="L8i-5I-16h" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="hR5-6D-lOZ"/>
                             <constraint firstItem="Jct-ck-mZx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="mNq-Rv-doY"/>
                             <constraint firstItem="L8i-5I-16h" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="q7q-ES-FMh"/>
+                            <constraint firstItem="9rW-Ui-1i1" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="wib-7j-3Ly"/>
                             <constraint firstItem="2vG-4c-nav" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="yIb-YB-fQl"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="mainLabel" destination="2vG-4c-nav" id="yFy-Cz-X0D"/>
                         <outlet property="sceneView" destination="L8i-5I-16h" id="JsM-kX-gtn"/>
                         <outlet property="statusLabel" destination="Jct-ck-mZx" id="FbI-N1-2pv"/>
                     </connections>
