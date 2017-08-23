@@ -22,12 +22,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
     
     private enum Phase {
         case initializing   // 初期化中
-        case limited    // TODO:
+        case limited
         case tracking       // トラッキング中
+
         case detection(stage: SCNNode)      // 平面検出
         
-        case starting(stage: SCNNode)
-        case playing
+        case start(stage: SCNNode)     // ステージ初期化
+        
+        
+        case playing(stage: SCNNode)
 
         case error(message: String)
         
@@ -157,37 +160,39 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
         mainLabel.text = "Ready?"
     }
     
-    private func start() {
+    private func setupStage() {
         guard case let .detection(node) = phase, let parent = node.parent else { return }
         let cameras = sceneView.scene.rootNode.childNodes.flatMap { $0.camera == nil ? nil : $0 }
-        guard let camera = cameras.first else { return }
+        guard let camera = cameras.first else { fatalError() }
         
         let configuration = ARWorldTrackingConfiguration()
         sceneView.session.run(configuration)
 
-        
-
-        let translation = SCNMatrix4MakeTranslation(0, 0, -3)
-        let ball = SCNNode(geometry: SCNBox(width: 0.5, height: 0.5, length: 0.5, chamferRadius: 0.1))
-        ball.transform = translation
-        camera.addChildNode(ball)
-        
         let stage = parent.clone()
         stage.orientation.y = camera.worldOrientation.y
         stage.worldPosition = SCNVector3Make(0, stage.worldPosition.y, 0)
         sceneView.scene.rootNode.addChildNode(stage)
         
-//        stage.childNode(withName: "play_area", recursively: true)?.isHidden = true
-        
-        phase = .starting(stage: stage)
+        stage.childNode(withName: "play_area", recursively: true)?.isHidden = false
+        stage.childNode(withName: "guide", recursively: true)?.isHidden = true
+
+        phase = .start(stage: stage)
+    }
+    
+    private func start() {
+        guard case let .start(stage) = phase else { return }
+        phase = .playing(stage: stage)
     }
     
     private func updatePhase(old: Phase) {
         print("phase: \(old) => \(phase)")
-
+        
         switch old {
-        case .detection(let node), .starting(let node):
-            node.removeFromParentNode()
+        case .detection(let node), .start(let node), .playing(let node):
+            if case .playing = phase {
+            } else {
+                node.removeFromParentNode()
+            }
         default: break
         }
         
@@ -198,8 +203,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
     
     @IBAction func tap(sender: UITapGestureRecognizer) {
         switch phase {
-        case .detection: start()
-        case .starting: bbb()
+        case .detection: setupStage()
+        case .start: start()
+        case .playing: bbb()
         default: return
         }
     }
@@ -211,9 +217,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
     }
     
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-        let camera = sceneView.scene.rootNode.childNodes.flatMap { $0.camera == nil ? nil : $0 }.first
+        if case let .playing(stage) = phase {
+            let cameras = sceneView.scene.rootNode.childNodes.flatMap { $0.camera == nil ? nil : $0 }
+            guard let camera = cameras.first else { fatalError() }
+
+            guard let player = stage.childNode(withName: "player", recursively: true) else { fatalError() }
+            player.worldPosition = SCNVector3Make(camera.worldPosition.x, player.worldPosition.y, camera.worldPosition.z)
+        }
         
-//        print(camera?.eulerAngles)
 
     }
     
@@ -228,6 +239,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
         node.name = "stage"
         source.childNodes.forEach { node.addChildNode($0) }
         node.position = SCNVector3Make(anchor.center.x, planeVerticalOffset, anchor.center.y)
+        node.childNode(withName: "play_area", recursively: true)?.isHidden = true
         return node
     }
     
@@ -239,7 +251,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, SCNPhysicsContactDele
     }
     
     func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
-        print(contact.nodeA)
-        print(contact.nodeB)
+        switch (contact.nodeA.name ?? "", contact.nodeB.name ?? "") {
+        case ("ng", _), (_, "ng"):
+            sceneView.scene.physicsWorld.speed = 0
+            print("NG")
+        case ("goal", _):
+            contact.nodeB.removeFromParentNode()
+            print("OK")
+        case (_, "goal"):
+            contact.nodeA.removeFromParentNode()
+            print("OK")
+        default: break
+        }
+
     }
 }
