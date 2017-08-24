@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13178.6" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13189.4" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="landscape">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13156.2"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13165.3"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -53,25 +53,43 @@
                                     <action selector="tapResetWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uAv-jo-QLH"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U7E-ap-4m9">
+                                <rect key="frame" x="305" y="281" width="57" height="29"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                <color key="textColor" red="1" green="0.40000000600000002" blue="0.40000000600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aJc-3k-QKb">
+                                <rect key="frame" x="571.5" y="307" width="67.5" height="48"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="40"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="2vG-4c-nav" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="9wW-db-BQE"/>
                             <constraint firstAttribute="trailingMargin" secondItem="9rW-Ui-1i1" secondAttribute="trailing" constant="8" id="DI3-sD-7xA"/>
+                            <constraint firstAttribute="trailing" secondItem="aJc-3k-QKb" secondAttribute="trailing" constant="28" id="DVE-LD-Zv6"/>
                             <constraint firstItem="Jct-ck-mZx" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="G7k-y6-H5v"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="L8i-5I-16h" secondAttribute="bottom" id="JL5-L4-Twz"/>
                             <constraint firstAttribute="trailing" secondItem="L8i-5I-16h" secondAttribute="trailing" id="cpz-ce-dck"/>
+                            <constraint firstItem="U7E-ap-4m9" firstAttribute="top" secondItem="2vG-4c-nav" secondAttribute="bottom" constant="70" id="frK-Eh-piq"/>
                             <constraint firstItem="L8i-5I-16h" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="hR5-6D-lOZ"/>
                             <constraint firstItem="Jct-ck-mZx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="mNq-Rv-doY"/>
                             <constraint firstItem="L8i-5I-16h" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="q7q-ES-FMh"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="aJc-3k-QKb" secondAttribute="bottom" constant="20" id="ugN-HK-pYk"/>
                             <constraint firstItem="9rW-Ui-1i1" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="wib-7j-3Ly"/>
                             <constraint firstItem="2vG-4c-nav" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="yIb-YB-fQl"/>
+                            <constraint firstItem="U7E-ap-4m9" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="zto-QS-ij2"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="mainLabel" destination="2vG-4c-nav" id="yFy-Cz-X0D"/>
                         <outlet property="sceneView" destination="L8i-5I-16h" id="JsM-kX-gtn"/>
+                        <outlet property="scoreLabel" destination="aJc-3k-QKb" id="i26-NK-aL0"/>
                         <outlet property="statusLabel" destination="Jct-ck-mZx" id="FbI-N1-2pv"/>
+                        <outlet property="subLabel" destination="U7E-ap-4m9" id="rJh-oF-Fpu"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
